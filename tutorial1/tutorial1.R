@@ -59,11 +59,42 @@ x = c(1,3)
 y = 5*x + 1
 plot(x,y,type="l",col="blue")
 
+# Data manipulation
+# 1
+birth1 = dplyr::tibble(birth)
+
+#2
+birth2 = birth1 %>% dplyr::select(X2002:X2020)
+
+#3
+birth1 = birth1 %>% dplyr::mutate(Status = ifelse(foreign.Swedish.background == "born in Sweden with two parents born in Sweden", "yes","no"))
+
+#4
+birth1%>%dplyr::count(sex,region)
+
+# 5
+birth3 = birth1%>% dplyr::select(-sex, -foreign.Swedish.background)%>%dplyr::group_by(Status, region)%>%dplyr::summarise_all(sum)%>%dplyr::ungroup()
+
+# 6
+birth4 = birth3%>% dplyr::group_by(region)%>%
+        dplyr::mutate(Percentage = X2002/sum(X2002)*100)%>%
+        dplyr::filter(Status == "yes")%>%
+        dplyr::ungroup()%>%
+        dplyr::arrange(Percentage)
+
+# 7
+birth5 = birth1%>%dplyr::group_by(region,sex,foreign.Swedish.background, Status)%>%
+        tidyr::pivot_longer(X2002:X2020, names_to="Year", values_to = "Born")%>%
+        dplyr::mutate(Year=as.numeric(stringr::str_remove(Year,"X")))
+
+# 8
+birth6 = birth5%>%dplyr::group_by(sex,region,foreign.Swedish.background, Status)%>%
+        tidyr::pivot_wider(names_from = Year, values_from = Born, names_prefix = "Y_")
 
 
-
-
-
+# 9
+blog_filtered = blog%>%dplyr::select_if( function(x) !all(x==0))
+blog_filtered   
 
 
 
