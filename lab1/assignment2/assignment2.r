@@ -8,20 +8,18 @@ scaler = caret::preProcess(train_data)
 train_scaled = predict(scaler,train_data)
 test_scaled = predict(scaler, test_data)
 
-# y = motor_UPDRS
-data_check = test_scaled;
-test_data_shaved = test_scaled[,-c(1,2,3,4,6)]
-train_data_shaved = train_scaled[,-c(1,2,3,4,6)]
+test = test_scaled[,-c(1,2,3,4,6)]
+train = train_scaled[,-c(1,2,3,4,6)]
 
-linear_model = lm(formula = motor_UPDRS ~ . + 0, data=as.data.frame(train_data_shaved), x=TRUE) # x = true ser vilka headlines som gör ngt
+linear_model = lm(formula = motor_UPDRS ~ . + 0, data=as.data.frame(train), x=TRUE) # x = true ser vilka headlines som gör ngt
 summary(linear_model)
 
 # Calculate MSE
-prediction_test = predict(linear_model, as.data.frame(test_data_shaved))
-prediction_train = predict(linear_model,as.data.frame(train_data_shaved))
+prediction_test = predict(linear_model, as.data.frame(test))
+prediction_train = predict(linear_model,as.data.frame(train))
 
-difference_test = prediction_test - test_data_shaved['motor_UPDRS']
-difference_train = prediction_train - train_data_shaved['motor_UPDRS']
+difference_test = prediction_test - test['motor_UPDRS']
+difference_train = prediction_train - train['motor_UPDRS']
 
 MSE_test = sum(difference_test^2)/nrow(difference_test)
 MSE_train = sum(difference_train^2)/nrow(difference_train)
@@ -29,7 +27,6 @@ MSE_train = sum(difference_train^2)/nrow(difference_train)
 # Loglikelihood (book 3.20)
 loglikelihood <- function(theta, sigma, X, Y)
 {
-
   n = dim(X)[1];
   theta = as.matrix(theta)
   first_term = -(n*log(2*pi*sigma^2)/2)
@@ -68,70 +65,21 @@ DegreeFreedom <- function(lambda, X, Y)
 }
 
 
-opt = RidgeOpt(lambda = 1, X = as.matrix(train_data_shaved[,-1]), 
-               Y = as.matrix(train_data_shaved['motor_UPDRS']))
+opt = RidgeOpt(lambda = 1, X = as.matrix(train[,-1]), 
+               Y = as.matrix(train['motor_UPDRS']))
 theta = as.matrix(unlist(opt['par']))  #Ask, why is this 17 not 16??
-train_data_last_task = as.matrix(train_data_shaved[,-1])
-theta = theta[-17,]
-estimated_updrs_train = train_data_last_task  %*% theta
-difference_train = estimated_updrs_train - train_data_shaved['motor_UPDRS']
+
+estimated_updrs_train = as.matrix(train[,-1])  %*% theta[-17,]
+difference_train = estimated_updrs_train - train['motor_UPDRS']
 MSE_train_lambda_1 = sum(difference_train^2)/nrow(difference_train)
 
-test_data_last_task = as.matrix(test_data_shaved[,-1])
-estimated_updrs_test = test_data_last_task %*% theta
-difference_test = estimated_updrs_test - test_data_shaved['motor_UPDRS']
+estimated_updrs_test = as.matrix(test[,-1]) %*% theta[-17,]
+difference_test = estimated_updrs_test - test['motor_UPDRS']
 MSE_test_lambda_1 = sum(difference_test^2)/nrow(difference_test)
 
-df_1 = DegreeFreedom(lambda=1, as.matrix(train_data_shaved[,-1]), 
-                     Y = as.matrix(train_data_shaved['motor_UPDRS']))
+df_1 = DegreeFreedom(lambda=1, as.matrix(train[,-1]), 
+                     Y = as.matrix(train['motor_UPDRS']))
 
 print(df_1)
 print(MSE_train_lambda_1)
 print(MSE_test_lambda_1)
-
-
-
-# opt = RidgeOpt(lambda = 100, X = as.matrix(train_data_shaved[,-1]),
-#                Y = as.matrix(train_data_shaved['motor_UPDRS']))
-# theta = as.matrix(unlist(opt['par']))  #Ask, why is this 17 not 16??
-# train_data_last_task = as.matrix(train_data_shaved[,-1])
-# theta = theta[-17,]
-# estimated_updrs_train = train_data_last_task  %*% theta
-# difference_train = estimated_updrs_train - train_data_shaved['motor_UPDRS']
-# MSE_train_lambda_100 = sum(difference_train^2)/nrow(difference_train)
-# 
-# test_data_last_task = as.matrix(test_data_shaved[,-1])
-# estimated_updrs_test = train_data_last_task %*% theta
-# difference_test = estimated_updrs_test - test_data_shaved['motor_UPDRS']
-# MSE_test_lambda_100 = sum(difference_test^2)/nrow(difference_test)
-# 
-# df_1 = DegreeFreedom(lambda=100, as.matrix(train_data_shaved[,-1]), 
-#                      Y = as.matrix(train_data_shaved['motor_UPDRS']))
-# 
-# print(sum(diag(df_1)))
-# print(MSE_train_lambda_100)
-# print(MSE_test_lambda_100)
-# 
-# 
-# 
-# opt = RidgeOpt(lambda = 1000, X = as.matrix(train_data_shaved[,-1]),
-#                Y = as.matrix(train_data_shaved['motor_UPDRS']))
-# theta = as.matrix(unlist(opt['par']))  #Ask, why is this 17 not 16??
-# train_data_last_task = as.matrix(train_data_shaved[,-1])
-# theta = theta[-17,]
-# estimated_updrs_train = train_data_last_task  %*% theta
-# difference_train = estimated_updrs_train - train_data_shaved['motor_UPDRS']
-# MSE_train_lambda_1000 = sum(difference_train^2)/nrow(difference_train)
-# 
-# test_data_last_task = as.matrix(test_data_shaved[,-1])
-# estimated_updrs_test = train_data_last_task %*% theta
-# difference_test = estimated_updrs_test - test_data_shaved['motor_UPDRS']
-# MSE_test_lambda_1000 = sum(difference_test^2)/nrow(difference_test)
-# 
-# df_1 = DegreeFreedom(lambda=1000, as.matrix(train_data_shaved[,-1]), 
-#                      Y = as.matrix(train_data_shaved['motor_UPDRS']))
-# 
-# print(sum(diag(df_1)))
-# print(MSE_train_lambda_1000)
-# print(MSE_test_lambda_1000)
-
