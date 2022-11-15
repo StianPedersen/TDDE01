@@ -36,8 +36,7 @@ loglikelihood <- function(theta, sigma, X, Y)
   second_term = (1/(2*sigma^2))
   summation_term = sum((X%*% theta - Y)^2)
   return (first_term - (summation_term/second_term))
-
-  }
+}
 
 # Ridge regression (book 3.48)
 ridge_function <- function(theta, sigma, X, Y, lambda)
@@ -63,8 +62,9 @@ RidgeOpt <- function(lambda, X, Y, sigma)
 # Degree of freedom (5.24 book) ASK
 DegreeFreedom <- function(lambda, X, Y)
 {
-  I = ncol(Y);
-  
+  I = diag(dim(X)[2]);
+  df = X %*% solve(t(X) %*% X + lambda * I) %*% t(X)
+  return (sum(diag(df)))
 }
 
 
@@ -78,14 +78,14 @@ difference_train = estimated_updrs_train - train_data_shaved['motor_UPDRS']
 MSE_train_lambda_1 = sum(difference_train^2)/nrow(difference_train)
 
 test_data_last_task = as.matrix(test_data_shaved[,-1])
-estimated_updrs_test = train_data_last_task %*% theta
+estimated_updrs_test = test_data_last_task %*% theta
 difference_test = estimated_updrs_test - test_data_shaved['motor_UPDRS']
 MSE_test_lambda_1 = sum(difference_test^2)/nrow(difference_test)
 
 df_1 = DegreeFreedom(lambda=1, as.matrix(train_data_shaved[,-1]), 
                      Y = as.matrix(train_data_shaved['motor_UPDRS']))
 
-print(sum(diag(df_1)))
+print(df_1)
 print(MSE_train_lambda_1)
 print(MSE_test_lambda_1)
 
