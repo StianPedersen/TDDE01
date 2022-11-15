@@ -32,7 +32,25 @@ set <-input[sample(1:n,replace = FALSE), 1:3] #1:n, nrow(input), replace = TRUE,
 training <- set[(1:(0.8*n)),] #80 % training data.
 test <- set[((0.8*n)+1):n,] #20 % Test data
 
-m = glm(Diabetes ~ Age + PlaGluCon,
+mymodel = glm(Diabetes ~ PlaGluCon + Age,
         data = training, family = "binomial")
 
-summary(m)
+summary(mymodel)
+
+res <- as.matrix(predict(mymodel, test, type = "response"))
+confmatrix <- table(Actual_Value = test$Diabetes, Predicted_Value = res > 0.5)
+
+#Accuracy 
+accuracy = (confmatrix[1,1] + confmatrix[2,2])/sum(confmatrix)
+#Missclassification
+missclass = (1 - sum(diag(confmatrix))/nrow(test))
+
+dfres = as.data.frame(res)
+#test_mat = matrix(c(res, as.matrix(Age = test$Age), as.matrix(PlaGluCon = test$PlaGluCon)))
+asd = data.frame(test,res)
+
+ggplot(data = asd, mapping = aes(x = Age, y = PlaGluCon, colour = res)) +
+  geom_point() + 
+  labs(title = "Plasma Glucose Concentration as a function of age") +
+  theme_bw()
+
