@@ -60,10 +60,10 @@ missclass = (1 - sum(diag(confmatrix))/nrow(test))
 
 dfres = as.data.frame(res)
 #test_mat = matrix(c(res, as.matrix(Age = test$Age), as.matrix(PlaGluCon = test$PlaGluCon)))
-asd = data.frame(test,est= res > 0.5)
+dataPlot1 = data.frame(test,est= res > Threshold)
 
 #Q2.4 --> Plot of the same kind as in Q1 but with predicted values of diabetes instead
-ggplot(data = asd, mapping = aes(x = Age, y = PlaGluCon, colour = est)) +
+ggplot(data = dataPlot1, mapping = aes(x = Age, y = PlaGluCon, colour = est)) +
   geom_point() + 
   labs(title = "Plasma Glucose Concentration as a function of age") +
   theme_bw()
@@ -72,4 +72,44 @@ ggplot(data = asd, mapping = aes(x = Age, y = PlaGluCon, colour = est)) +
 # I guess that the quality ain't too good since approx one in 4 is missclassified
 
 
-#Q3.1 
+#Q3.1 --> Report the decision boundary equation:
+#X1 = AGE
+#X2 = PlaGluCon = Y
+#Dec.Bound = f(x) = 1- f(x) --> e^(θTx)/(1 + e^(θTx)) = 1/(1 + e^(θTx))
+#<=> e^(θTx) = 1 <=> θTx = 0 <=> x2 = -(θ0/θ2 + (θ1/θ2)*x1) => y = kx + m.
+coef(mymodel) # = θT 
+θ0 = coef(mymodel)[1]
+θ1 = coef(mymodel)[3]
+θ2 = coef(mymodel)[2]
+
+#
+
+#Q3.2 --> Add curve showing dec bound
+ggplot(data = asd, mapping = aes(x = Age, y = PlaGluCon, colour = est)) +
+  geom_point() + 
+  labs(title = "Plasma Glucose Concentration as a function of age") +
+  theme_bw() +
+  geom_abline(intercept = (-θ0/θ2), slope = (-θ1/θ2), color = "red")
+
+#Q.3.3 --> Comment whether the dec.bound seems to catch the data distribution well.
+#IDK like ofc it does? Since it is drawn in the est scatter plot? Feels like I am missing something.
+
+
+#Q4.1 --> Make the same kind of plot as in Q2 but with r=0.2
+Threshold = 0.2
+dataPlot2 = data.frame(test,est= res > Threshold)
+ggplot(data = dataPlot2, mapping = aes(x = Age, y = PlaGluCon, colour = est)) +
+  geom_point() + 
+  labs(title = "Plasma Glucose Concentration as a function of age") +
+  theme_bw()
+
+#Q4.2 --> Make the same kind of plot as in Q2 but with r=0.2
+Threshold = 0.8
+dataPlot3 = data.frame(test,est= res > Threshold)
+ggplot(data = dataPlot3, mapping = aes(x = Age, y = PlaGluCon, colour = est)) +
+  geom_point() + 
+  labs(title = "Plasma Glucose Concentration as a function of age") +
+  theme_bw()
+#Q4.3 --> when r increase, less ppl are estimated to have diabetes
+
+#5.1
