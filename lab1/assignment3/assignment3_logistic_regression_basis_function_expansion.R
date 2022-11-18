@@ -5,14 +5,16 @@ set.seed(12345)
 #Q1:
 
 Dataframe = read.csv("pima-indians-diabetes.csv", header = FALSE, na.strings = c("")) #Reads all the values to a dataframe, if a value is missing it is set to NA by na.strings
-sapply(Dataframe, function(x) sum(is.na(x))) #For each tabelcolumn checks if there is values missing
 colnames(Dataframe) <- c('Tpregnant', 'PlaGluCon', 'BloodPr', 'TriSkinT', 'Insulin', 'BMI', 'DPedFunc', 'Age', 'Diabetes') #Gives names to the columns
-input <- data.frame(Dataframe[, c('Age', 'PlaGluCon', 'Diabetes')],
-                    Z1 = (Dataframe$Age^0)*(Dataframe$PlaGluCon^4), 
-                    Z2 = (Dataframe$Age^1)*(Dataframe$PlaGluCon^3), 
-                    Z3 = (Dataframe$Age^2)*(Dataframe$PlaGluCon^2), 
-                    Z4 = (Dataframe$Age^3)*(Dataframe$PlaGluCon^1), 
-                    Z5 = (Dataframe$Age^4)*(Dataframe$PlaGluCon^0))
+sapply(Dataframe, function(x) sum(x == 0)) #For each tabelcolumn checks if there is values equal to 0
+df_dropped <- Dataframe[Dataframe[,"PlaGluCon"] != 0,] #drops all the rows where PlaGluCon = 0.
+
+input <- data.frame(df_dropped[, c('Age', 'PlaGluCon', 'Diabetes')],
+                    Z1 = (df_dropped$Age^0)*(df_dropped$PlaGluCon^4), 
+                    Z2 = (df_dropped$Age^1)*(df_dropped$PlaGluCon^3), 
+                    Z3 = (df_dropped$Age^2)*(df_dropped$PlaGluCon^2), 
+                    Z4 = (df_dropped$Age^3)*(df_dropped$PlaGluCon^1), 
+                    Z5 = (df_dropped$Age^4)*(df_dropped$PlaGluCon^0))
 #Creates a df with all the values needed in the assignment.
 
 ggplot(data = input, mapping = aes(x = Age, y = PlaGluCon, colour = Diabetes > 0.5)) +
