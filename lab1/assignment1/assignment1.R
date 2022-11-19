@@ -133,5 +133,28 @@ plot(x=all_mce_train, xlab="k-value", ylim=c(0,0.06),
 lines(all_mce_valid, type="b", col="red", pch=16)
 legend("bottomright", legend = c("Train", "Valid"), 
        col = c("black", "red"), pch = 16)
-help("plot")
 
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+
+# 1.5.
+
+# Calculate cross-entropy
+cross_entropy=function(n, probability, label){
+  w = c()
+  for (i in 1:n){
+    w[i]=log(1e-15+probability[i, label[i]])
+  }
+  return(-sum(w))
+}
+
+ce_loss =c()
+for (i in 1:30){
+  m_valid_CE = kknn(formula=X0.26~., train=train, test=valid, k=i, distance = 1, kernel="rectangular")
+
+  ce_loss[i] = cross_entropy(length(predict((m_valid_CE))), m_valid_CE$prob, valid$X0.26)
+}
+
+plot(x=ce_loss, xlab="k-value", ylim = (c(0,1000)),
+     ylab="Cross-Entropy", col="red", type = "b", pch=16,
+     main="Cross Entropy loss function of Valid-data")
