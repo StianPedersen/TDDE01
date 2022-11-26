@@ -60,6 +60,27 @@ for(i in 2:50){
   plot(2:50, trainScore[2:50], type = 'b', col='red',
        ylim=c(min(testScore[-1]),max(trainScore[-1])))
   points(2:50, testScore[2:50], type = 'b', col="blue")
+  
+# Best amount of leaves is 17?
+#TO_DO SVARA Pa ANALYS FRaGOR PART 3
+  
+# Part 4
+finaltree = prune.tree(fit3, best=17)
+Yfit_finaltree = predict(finaltree, newdata=test, type="class")
+cm = table(test$y, Yfit_finaltree) # Cpmfusion matrix
+
+accuracy = sum(cm[1],cm[4])/sum(cm[1:4])
+precision = cm[4] / sum(cm[4],cm[2])
+sensitivity = cm[4] / sum(cm[4],cm[3])
+
+fscore = (2*(sensitivity*precision))/(sensitivity + precision)
+
+accuracy #  0.8922884
+fscore # 0.2848752
+
+# Part 5
+loss_matrix = matrix(c(0,5,1,0),nrow = 2)
+fit_part5 = tree(y~., newdata= test, )
 
 
 
