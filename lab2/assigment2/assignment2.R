@@ -48,8 +48,25 @@ mean(yfit3_train != train$y)
 mean(yfit3_valid != valid$y)
 
 
+# Task 3
+trainScore = rep(0,50)
+testScore = rep(0,50)
+for(i in 2:50){
+  prunedTree = prune.tree(fit3, best=i)
+  pred = predict(prunedTree, newdata = valid, type = "tree")
+  trainScore[i] = deviance(prunedTree)
+  testScore[i] = deviance(pred)
+  }
+  plot(2:50, trainScore[2:50], type = 'b', col='red',
+       ylim=c(min(testScore[-1]),max(trainScore[-1])))
+  points(2:50, testScore[2:50], type = 'b', col="blue")
 
 
 
 
-#summary(fit1)
+
+
+
+
+
+
