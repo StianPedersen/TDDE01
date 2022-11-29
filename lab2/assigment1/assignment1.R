@@ -32,29 +32,54 @@ mean((train$Fat - predict(m_train)) ^ 2)
 # Estimate the training error
 mean((train$Fat - predict(m_test)) ^ 2)
 
+
+# According to https://towardsdatascience.com/ridge-and-lasso-regression-a-complete-guide-with-python-scikit-learn-e20e34bcbf0b: 
+# On the other hand if we have large number of features and test score is 
+# relatively poor than the training score then it’s the problem of 
+# over-generalization or over-fitting."
+
 #  ------------------------     Task 2    ----------------------------------  #
 
-
+# TODO: Find 
 
 #  ------------------------     Task 3    ----------------------------------  #
 
 library(glmnet)
 
 # Define response variables
-y = tecator$Fat
+response = tecator$Fat
 
 # Define matrix of predictor variable
-x = as.matrix(tecator[,2:(ncol(train)-2)])
+covariates = as.matrix(tecator[,2:(ncol(train)-3)])
 
 # Perform k-fold cross-validation to find optimal lambda value
-cv_model <- cv.glmnet(x, y, alpha = 1)
+cv_model = cv.glmnet(as.matrix(covariates), response, alpha=1, family="gaussian", lambda = seq(0,1,0.001))
+cv_model = cv.glmnet(as.matrix(covariates), response, alpha=1)
 
-#find optimal lambda value that minimizes test MSE
+# Find optimal lambda value that minimizes test MSE
 best_lambda <- cv_model$lambda.min
 best_lambda
 
-#produce plot of test MSE by lambda value
-plot(cv_model, ylim=(c(0,3)))
+# Produce plot of test MSE by lambda value
+plot(cv_model)
+
+model = glmnet(as.matrix(covariates), response, alpha=1)
+
+plot(model, xvar="lambda")
 
 
+
+
+
+
+coeff = coef(cv_model, s="lambda.min")
+coeff
+ynew = predict(cv_model, newx=as.matrix(covariates), type="response")
+ynew
+y
+
+coeff = sum((ynew-mean(y))^2)/sum(y-mean(y))^2
+sum((ynew-y)^2)
+sum((y-mean(y)^2))
+coeff
 
