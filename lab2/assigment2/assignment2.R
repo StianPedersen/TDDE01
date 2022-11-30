@@ -61,13 +61,13 @@ for(i in 2:50){
        ylim=c(min(testScore[-1]),max(trainScore[-1])))
   points(2:50, testScore[2:50], type = 'b', col="blue")
   
-# Best amount of leaves is 17?
-#TO_DO SVARA Pa ANALYS FRaGOR PART 3
+# Best amount of leaves is 20?
+#TO_DO SVARA Pa ANALYS FRGOR PART 3
   
 # Part 4
-finaltree = prune.tree(fit3, best=17)
+finaltree = prune.tree(fit3, best=22)
 Yfit_finaltree = predict(finaltree, newdata=test, type="class")
-cm = table(test$y, Yfit_finaltree) # Cpmfusion matrix
+cm = table(test$y, Yfit_finaltree) # Confusion matrix
 
 accuracy = sum(cm[1],cm[4])/sum(cm[1:4])
 precision = cm[4] / sum(cm[4],cm[2])
@@ -79,15 +79,29 @@ accuracy #  0.8922884
 fscore # 0.2848752
 
 # Part 5
-loss_matrix = matrix(c(0,5,1,0),nrow = 2)
-fit_part5 = tree(y~., newdata= test, )
+# loss_matrix = matrix(c(0,5,1,0),nrow = 2)
+fit_part5 = predict(finaltree, newdata = test, type="vector")
+final_part5 = fit_part5[,1]
+for (row in 1:nrow(fit_part5))
+{
+  reassurance = fit_part5[row,1] / fit_part5[row, 2]
+  if(reassurance < 5){
+    final_part5[row] = "yes"
+  }
+  else
+  {
+    final_part5[row] = "no"
+  }
+}
 
+tbl_part5 = table(test$y,final_part5)
+accuracy_5 = sum(tbl_part5[1],tbl_part5[4])/sum(tbl_part5[1:4])
+precision_5 = tbl_part5[4] / sum(tbl_part5[4],tbl_part5[2])
+sensitivity_5 = tbl_part5[4] / sum(tbl_part5[4],tbl_part5[3])
 
+fscore_5 = (2*(sensitivity_5*precision_5))/(sensitivity_5 + precision_5)
 
-
-
-
-
-
+accuracy_5
+fscore_5
 
 
