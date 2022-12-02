@@ -3,9 +3,9 @@
 ###############################################################################
 
 #  ------------------------     Task 1    ----------------------------------  #
-
+f <- file.choose()
 # Read csv file 
-tecator = read.csv("tecator.csv")
+tecator = read.csv(f)
 tecator_modified = data.frame(tecator[,-1], row.names = tecator[,1])
 
 # Split dataframe into train and test (50/50)
@@ -30,6 +30,9 @@ summary(m_train)
 summary(m_train)$coefficient
 
 predict(m_train, train)
+
+ynew_lm = predict(m_train, test)
+
 
 # Estimate the training error
 mean((train$Fat - predict(m_train, train)) ^ 2)
@@ -107,7 +110,7 @@ legend("bottomright", legend = c(expression(paste("MSE by log(", lambda, ")")),
 
 # Create a model with the optimal lambda-value as parameter.
 optimal_model_lasso = glmnet(as.matrix(covariates), response, alpha=1, 
-                                   family="gaussian", lambda = best_lambda)
+                                   family="gaussian", lambda = optimal_lambda)
 
 # We can print a summary of the model to find the number of 
 # nonzero coefficients (Df):
@@ -116,15 +119,34 @@ print(optimal_model_lasso)
 help("predict")
 
 
-ynew = predict(optimal_model_lasso, newx = covariates, type = "response")
+ynew = predict(optimal_model_lasso, newx = as.matrix(test[,1:100]), type = "response")
+
+plot(test$Fat-ynew, ylab = "Magnitutde of wrong prediction", xlab = "Channel", col = "blue")
+
+# points(test$Fat-ynew_lm, col = "red")
+abline(h=0)
+
+
 
 mean((ynew-mean(test$Fat)))
+# mean((ynew_lm-mean(test$Fat)))
+
+plot(test$Fat, col="red")
+points(ynew, col="black")
+
+sum((ynew - mean(train$Fat))^2)/sum((train$Fat - mean(train$Fat))^2)
+sum((ynew - train$Fat)^2)
+
+sum((ynew_lm - mean(train$Fat))^2)/sum((train$Fat - mean(train$Fat))^2)
+sum((ynew_lm - train$Fat)^2)
+
+
 # comparison_model_lasso = glmnet(as.matrix(covariates), response, alpha=1, 
 #                                 family="gaussian", lambda = exp(-4))
 
 
+
 # TODO: plot label vs predicted values in scatter plot 
 plot(x = train$Fat, y =  )
-
 
 
