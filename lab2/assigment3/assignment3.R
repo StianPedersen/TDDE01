@@ -23,3 +23,10 @@ while(summan <= 0.95) #Sum until 95% variance is obtained.
 }
 
 pro_1_2 <- (xx[1] + xx[2])*100 #Calculates the proportion of variation explained by the first two principals components
+
+###########################################################################
+                   ###Question 2###
+###########################################################################
+res = princomp(scaled_df) #Makes a principal component analysis of scaled_df.
+
+screeplot(res) #Prints the variance contribution of the different components.
