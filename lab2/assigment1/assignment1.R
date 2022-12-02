@@ -90,63 +90,41 @@ cv_model_lasso = cv.glmnet(as.matrix(covariates), response, alpha=1,
                      family="gaussian")
 
 # Find optimal lambda value that minimizes test MSE
-best_lambda = cv_model_lasso$lambda.min
-best_lambda
-log(best_lambda)
+optimal_lambda = cv_model_lasso$lambda.min
+log(optimal_lambda)
 
-plot(cv_model_lasso)
 # Produce plot of test MSE by lambda value
 plot(x = log(cv_model_lasso$lambda), y = log(cv_model_lasso$cvm), 
      xlab =expression(paste("log(", lambda, ")")), 
-     ylab = " Mean cross-validated error", ylim = c(2.5,3))
-abline(v=log(best_lambda))
-abline(v=-4)
+     ylab = " Mean cross-validated error")
+abline(v=log(optimal_lambda), col="red")
+abline(v=-4, col="blue")
+legend("bottomright", legend = c(expression(paste("MSE by log(", lambda, ")")), 
+                                 expression(paste("log(", lambda, ") = - 4")), 
+                                 expression(paste("Optimal log(", lambda, ")"))), 
+       col = c("black", "blue", "red"), pch = 16)
 
-help("cv.glmnet")
 
-coeff = coef(optimal_model_lasso, s="lambda.min")
-coeff
-
-# Function to count amount of selected variables
-# count_variables = function(coeff){
-#   count = 0
-#   dim = nrow(coeff)
-#   for (i in 1:dim){
-#     if (coeff[i,1] != 0){
-#       count = count + 1
-#     }
-#   }
-#   return(count)
-# }
-
-# count_variables(coefficients(optimal_model_lasso))
-
+# Create a model with the optimal lambda-value as parameter.
 optimal_model_lasso = glmnet(as.matrix(covariates), response, alpha=1, 
                                    family="gaussian", lambda = best_lambda)
 
-comparison_model_lasso = glmnet(as.matrix(covariates), response, alpha=1, 
-                                                    family="gaussian", lambda = exp(-4))
+# We can print a summary of the model to find the number of 
+# nonzero coefficients (Df):
 print(optimal_model_lasso)
-print(comparison_model_lasso)
+
+help("predict")
+
+
+ynew = predict(optimal_model_lasso, newx = covariates, type = "response")
+
+mean((ynew-mean(test$Fat)))
+# comparison_model_lasso = glmnet(as.matrix(covariates), response, alpha=1, 
+#                                 family="gaussian", lambda = exp(-4))
 
 
 # TODO: plot label vs predicted values in scatter plot 
 plot(x = train$Fat, y =  )
 
 
-
-
-
-# y = train$Fat
-# y
-# 
-# ynew = predict(cv_model_lasso, newx = as.matrix(covariates), type = "response")[,1]
-# ynew
-#   
-# 
-# sum((ynew-mean(y))^2)/sum((y-mean(y))^2)
-# 
-# sum((ynew-y)^2)
-# 
-# coeff
 
