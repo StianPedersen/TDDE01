@@ -28,5 +28,26 @@ pro_1_2 <- (xx[1] + xx[2])*100 #Calculates the proportion of variation explained
                    ###Question 2###
 ###########################################################################
 res = princomp(scaled_df) #Makes a principal component analysis of scaled_df.
-
+res2 = prcomp(scaled_df)
 screeplot(res) #Prints the variance contribution of the different components.
+res2$rotation[,1]    
+res$loadings[,1]   
+plot(res$loadings[,1])
+plot(res2$rotation[,1])
+
+?plot
+
+library(tidyverse)
+dfr = as.data.frame(abs(res$loadings[,1]))
+colnames(dfr)<-("PC1")
+ggplot(data = dfr, mapping = aes(x = 1:101, y = PC1, colour = 1)) +
+  geom_point() + #Creates the dotted data
+  labs(title = "Trace plot of PC1", colour = "") + #Labels, can change x and why too i suppose
+  theme_bw() #Theme black & White
+
+library(dplyr)
+dfr %>%  #Take the dataframe dfr 
+  arrange(desc(dfr$PC1)) %>% #THEN arrange it desc order based on PC1
+  slice(1:5) #THEN Slice it so that you only get the top 5
+
+
