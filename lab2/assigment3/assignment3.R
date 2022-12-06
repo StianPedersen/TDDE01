@@ -30,6 +30,7 @@ res = princomp(scaled_df) #Makes a principal component analysis of scaled_df.
 screeplot(res) #Prints the variance contribution of the different components.
 #res$loadings[,1]  #Loading is the eigenvectors*eignenvalue^0.5, and we want the cintribution for PC1, e.g the first column 
 
+#Following plots the PC1 and he contribution of each feature, the x axis is an index including all the features. 
 library(tidyverse)
 dfr_loadings = as.data.frame(res$loadings[,1]) #Reads the Loadings of PC1 in to dfr 
 colnames(dfr_loadings)<-(c("PC1")) #Renames the columns
@@ -38,9 +39,17 @@ ggplot(data = dfr_loadings, mapping = aes(x = 1:101, y = PC1)) + #Prints the PC1
   labs(title = "Trace plot of PC1 using princomp()", x = "variable 1:101", y = "PC1 Feature contribution(loadings)", colour = "") + #Labels, can change x and y too i suppose
   theme_bw() #Theme black & White
 
+#Following computes the five most contributing features.
+library(dplyr)
+absdfr = as.data.frame(abs(res$loadings[,1])) #Takes the absolute values of the PC1 scores
+absdfr %>%  #Take the dataframe dfr 
+  arrange(desc(absdfr[,1])) %>% #THEN arrange it desc order based on PC1
+  slice(1:5) #THEN Slice it so that you only get the top 5
+
 #summary(res)
 #dim(res$scores)
 
+#Following makes a plot of the PC1 and PC2 scores and colors using ViolentCrimesPerPop
 dfr_scores = data.frame(PC1=res$score[,1], PC2 = res$scores[,2], ViolentCrimesPerPop = df$ViolentCrimesPerPop) #Creates a df with PC1 & PC2 scores
 colnames(dfr_scores)<-(c("PC1", "PC2")) #Renames the columns
 ggplot(data = dfr_scores, mapping = aes(x = PC1, y = PC2, colour = ViolentCrimesPerPop))+
@@ -48,11 +57,7 @@ ggplot(data = dfr_scores, mapping = aes(x = PC1, y = PC2, colour = ViolentCrimes
   labs(title = "PC 1 + PC 2") + #Labels
   theme_bw() #Theme black & White
 
-library(dplyr)
-absdfr = as.data.frame(abs(res$loadings[,1])) #Takes the absolute values of the PC1 scores
-absdfr %>%  #Take the dataframe dfr 
-  arrange(desc(absdfr[,1])) %>% #THEN arrange it desc order based on PC1
-  slice(1:5) #THEN Slice it so that you only get the top 5
+
 
 ###########################################################################
                               ###Question 3###
