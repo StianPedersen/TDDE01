@@ -26,6 +26,7 @@ for(i in seq(by,5,by)){
 
 filter0 <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),
                 C=which.min(err_va)*by,scaled=FALSE)
+filter0@error
 mailtype <- predict(filter0,va[,-58])
 t <- table(mailtype,va[,58])
 err0 <- (t[1,2]+t[2,1])/sum(t)
@@ -33,6 +34,7 @@ err0
 
 filter1 <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),
                 C=which.min(err_va)*by,scaled=FALSE)
+filter1@error
 mailtype <- predict(filter1,te[,-58])
 t <- table(mailtype,te[,58])
 err1 <- (t[1,2]+t[2,1])/sum(t)
@@ -41,12 +43,14 @@ err1
 filter2 <- ksvm(type~.,data=trva,kernel="rbfdot",kpar=list(sigma=0.05),
                 C=which.min(err_va)*by,scaled=FALSE)
 mailtype <- predict(filter2,te[,-58])
+filter2@error
 t <- table(mailtype,te[,58])
 err2 <- (t[1,2]+t[2,1])/sum(t)
 err2
 
 filter3 <- ksvm(type~.,data=spam,kernel="rbfdot",kpar=list(sigma=0.05),
                 C=which.min(err_va)*by,scaled=FALSE)
+filter3@error
 mailtype <- predict(filter3,te[,-58])
 t <- table(mailtype,te[,58])
 print(t)
@@ -57,10 +61,10 @@ err3
 
 # 1. Which filter do we return to the user ? 
 #    filter0, filter1, filter2 or filter3? Why?
-# filter0 uses training data and predicts on validation data (800 elements), has a error of 0.0675 
-# filter1 uses training data and predicts on test data (800 elements), has a error of 0.08489
-# filter2 uses training AND validation and predicts on test data, has a error of 0.08239
-# filter3 uses the whole spam set and predicts on the test data, has a error of 0.0212
+# filter0 uses training data and predicts on validation data (800 elements)
+# filter1 uses training data and predicts on test data (800 elements)
+# filter2 uses training AND validation and predicts on test data
+# filter3 uses the whole spam set and predicts on the test data
 
 # filter2 uses the highest amount of training data and predicts on a different data set
 # (on the contrary of filter3), therefore we return this filter to the user
@@ -72,17 +76,31 @@ err3
 # previously unseen data
 
 # 3. Implementation of SVM predictions.
+# You should make use of the functions alpha-index, coef and b that
+# return the indexes of the support vectors, the linear coefficients for the support vectors,
+# and the negative intercept of the linear combination.
 
 sv<-alphaindex(filter3)[[1]]
 co<-coef(filter3)[[1]]
 inte<- - b(filter3)
+
+kernel = rbfdot(sigma = 0.05)
+
+temp = spam[1,-58]
+temp2=unlist(spam[sv[3],-58]) 
 k<-NULL
+prediction_list = c(1:10)
 for(i in 1:10){ # We produce predictions for just the first 10 points in the data set.
   k2<-NULL
   for(j in 1:length(sv)){
-    k2<-0 # 0 set by me Your code here
+    k2<-unlist(spam[sv[j],-58]) # 0 set by me Your code here
+    my_point =unlist(spam[i,-58]) # Take away the type from the spam
+    sign = kernel(my_point, k2)
+    k = c(k,sign)
   }
-  k<-c(k,1) # 1 set by me Your code here)
+  prediction_list[i] = co %*% k
+  prediction_list[i] = prediction_list[i] + inte
+  k<-NULL # 1 set by me
 }
-k
+prediction_list # Should have 10 predictions
 predict(filter3,spam[1:10,-58], type = "decision")
