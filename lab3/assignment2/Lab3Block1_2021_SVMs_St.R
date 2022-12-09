@@ -86,15 +86,13 @@ inte<- - b(filter3)
 
 kernel = rbfdot(sigma = 0.05)
 
-temp = spam[1,-58]
-temp2=unlist(spam[sv[3],-58]) 
 k<-NULL
 prediction_list = c(1:10)
 for(i in 1:10){ # We produce predictions for just the first 10 points in the data set.
   k2<-NULL
   for(j in 1:length(sv)){
-    k2<-unlist(spam[sv[j],-58]) # 0 set by me Your code here
-    my_point =unlist(spam[i,-58]) # Take away the type from the spam
+    k2<-unlist(spam[sv[j],-58]) 
+    my_point =unlist(spam[i,-58])
     sign = kernel(my_point, k2)
     k = c(k,sign)
   }
@@ -102,5 +100,5 @@ for(i in 1:10){ # We produce predictions for just the first 10 points in the dat
   prediction_list[i] = prediction_list[i] + inte
   k<-NULL # 1 set by me
 }
-prediction_list # Should have 10 predictions
+prediction_list 
 predict(filter3,spam[1:10,-58], type = "decision")
