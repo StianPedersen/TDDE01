@@ -24,7 +24,7 @@ mean((test$Fat - predict(m_train, test)) ^ 2)
 
 
 #  ------------------------     Task 3    ----------------------------------  #
-
+help("optim")
 library(glmnet)
 
 # Define response variables
