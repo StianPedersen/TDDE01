@@ -80,25 +80,27 @@ err3
 # return the indexes of the support vectors, the linear coefficients for the support vectors,
 # and the negative intercept of the linear combination.
 
-sv<-alphaindex(filter3)[[1]]
-co<-coef(filter3)[[1]]
-inte<- - b(filter3)
 
-kernel = rbfdot(sigma = 0.05)
+# Written code
+sv<-alphaindex(filter3)[[1]] # Indexes of the Support Vector points
+co<-coef(filter3)[[1]] # Coefficients of these points (alpha)
+inte<- - b(filter3) # Intercept, "Kx + m" (where inte=m)
 
-k<-NULL
-prediction_list = c(1:10)
+kernel = rbfdot(sigma = 0.05) # Create a similar kernel as filter0,1,2,3
+
+k<-NULL 
+prediction_list = c(1:10) # Create empty  vector for predictions
 for(i in 1:10){ # We produce predictions for just the first 10 points in the data set.
   k2<-NULL
   for(j in 1:length(sv)){
-    k2<-unlist(spam[sv[j],-58]) 
-    my_point =unlist(spam[i,-58])
-    sign = kernel(my_point, k2)
-    k = c(k,sign)
+    k2<-unlist(spam[sv[j],-58])  # Unlist every SV point minus the prediction value
+    my_point =unlist(spam[i,-58]) # Unlist the first point in the spam dataset
+    sign = kernel(my_point, k2) # Calculate the linear sign of the point for the SV point
+    k = c(k,sign) # Append the calculated sign
   }
-  prediction_list[i] = co %*% k
-  prediction_list[i] = prediction_list[i] + inte
-  k<-NULL # 1 set by me
+  prediction_list[i] = co %*% k # For each sign multiply by alpha (see 3.55c)
+  prediction_list[i] = prediction_list[i] + inte # Add the intercept
+  k<-NULL # reset k
 }
 prediction_list 
 predict(filter3,spam[1:10,-58], type = "decision")
