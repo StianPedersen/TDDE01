@@ -12,6 +12,8 @@ h_time = 1
 
 longitud = 58.4274 # The point to predict
 latitud = 14.826
+# longitud = 12.3836
+# latitud = 55.8203
 date = "2013-11-04" # The date to predict
 
 # Filter out measurements with posterior date
@@ -46,30 +48,41 @@ distanceDiff = function(longitud1, latitud1, longitud2, latitud2){
 
 dateDiff = function(date1, date2){
   days = difftime(date1, date2, units = "days")
+  days = as(days, "numeric")
   K = gausinKernel(days, h_date)
   return(K)
 }
 
 timeDiff = function(time1, time2){
   hours = difftime(time1, time2, units = "hours")
+  hours = as(hours, "numeric")
   K = gausinKernel(hours, h_time)
   return(K)
 }
 
 
-create_Kernel = function(longitud, latitud, date, time, st){
-  k_sum = c()
-  for (row in 1:nrow(st)){
-    print(row)
-    k_distance = distanceDiff(longitud1 = longitud, latitud1 =  latitud, 
-                              longitud2 =  st[row,2], latidtud2 = st[row,1])
-    k_date = dateDiff(date1 = date, date2 = st[row,3])
-    k_time = timeDiff(time1 = time, time2 = st[row,4])
-    temp = sum(k_distance, k_date, k_time)
-    k_sum = append(k_sum,c(temp))
+create_Kernel = function(longitud, latitud, date, times, st){
+  k_sum = matrix(0, nrow = nrow(st), ncol = length(times))
+  for (column in 1:length(times)){
+    for (row in 1:nrow(st)){
+      this_column = c()
+      k_distance = distanceDiff(longitud, latitud, st[row,2], st[row,1])
+      k_date = dateDiff(date1 = date, date2 = st[row,3])
+      k_time = timeDiff(time1 = as.POSIXct(times[1], format = "%H:%M:%S"), 
+                        time2 = as.POSIXct(st[row,4], format = "%H:%M:%S"))
+      k_sum[row,column] = sum(k_distance, k_date, k_time) 
+      this_column = append(this_column, k_sum[row,column]*st[row,5]) 
+      
+    }
+    first = sum(row,column)
+    second = first * st[,5]
+    third = second/first
+    
+    
   }
+  return(k_sum)
 }
 
-k = create_Kernel(longitud, latitud, date, time, filtered_st)
+k = create_Kernel(longitud, latitud, date, times, filtered_st)
 
 plot(temp, type="o")
