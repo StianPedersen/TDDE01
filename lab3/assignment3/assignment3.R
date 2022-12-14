@@ -28,26 +28,29 @@ winit <- unlist(cbind(c(runif(10, -1, 1)), c(runif(10, -1, 1))))# WeightInit
 ################################################################################
 #                             TASK 2                                           #
 ################################################################################
-linear <- function(x) x
-relu <- function(x) {
-  if (x < 0)
-    return(0)
-  else 
-    return (x)}
-softplus <- function(x) log(1 + exp(x))
+linear <- function(x) {
+  x
+  }
+relu <- function(x) { #APPROXIMATION OF RELU BCUS LIFE IS PAIN.
+  x / (1 + exp(-2 * 1 * x))
+  }
+softplus <- function(x) {
+  log(1 + exp(x))
+  }
 
 nn_linear <- neuralnet(Sin ~ Variable,
                  data = train_data, 
                  hidden = c(10),
                  startweights = winit,
-                 act.fct = linear
-) #Add more here
+                 act.fct = linear) #Add more here
+
+
 nn_ReLU <- neuralnet(Sin ~ Variable,
                  data = train_data, 
                  hidden = c(10),
                  startweights = winit,
-                 act.fct = relu
-) #Add more here
+                 act.fct = relu) #Add more here
+
 nn_soft <- neuralnet(Sin ~ Variable,
                 data = train_data, 
                 hidden = c(10),
@@ -57,8 +60,9 @@ nn_soft <- neuralnet(Sin ~ Variable,
 # Plot of the training data (black), test data (blue), and predictions (red)
 plot(train_data, cex=2)
 points(test_data, col = "blue", cex=1)
-points(test_data[,1],predict(nn,test_data), col="red", cex=1)
-
+points(test_data[,1],predict(nn_linear,test_data), col="red", cex=1)
+points(test_data[,1],predict(nn_ReLU,test_data), col="red", cex=1)
+points(test_data[,1],predict(nn_soft,test_data), col="red", cex=1)
 
 
 ################################################################################
