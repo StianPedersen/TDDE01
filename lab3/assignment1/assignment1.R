@@ -12,8 +12,7 @@ h_time = 1
 
 longitud = 58.4274 # The point to predict
 latitud = 14.826
-# longitud = 12.3836
-# latitud = 55.8203
+
 date = "2013-11-04" # The date to predict
 
 # Filter out measurements with posterior date
@@ -60,29 +59,35 @@ timeDiff = function(time1, time2){
   return(K)
 }
 
-
+# Calculate kernel that is sum of three Gaussian kernels
 create_Kernel = function(longitud, latitud, date, times, st){
-  k_sum = matrix(0, nrow = nrow(st), ncol = length(times))
-  for (column in 1:length(times)){
+  
+  temp = vector(length = 11) # Create a vector to fill with predictions
+  
+  for (column in 1:length(times)){ 
+    k_column = matrix(0, nrow = nrow(st), ncol = 1) 
+    k_weighted_temp = matrix(0, nrow = nrow(st), ncol = 1)
+    
     for (row in 1:nrow(st)){
-      this_column = c()
       k_distance = distanceDiff(longitud, latitud, st[row,2], st[row,1])
       k_date = dateDiff(date1 = date, date2 = st[row,3])
-      k_time = timeDiff(time1 = as.POSIXct(times[1], format = "%H:%M:%S"), 
+      k_time = timeDiff(time1 = as.POSIXct(times[column], format = "%H:%M:%S"), 
                         time2 = as.POSIXct(st[row,4], format = "%H:%M:%S"))
-      k_sum[row,column] = sum(k_distance, k_date, k_time) 
-      this_column = append(this_column, k_sum[row,column]*st[row,5]) 
-      
+      k_column[row, 1] = sum(k_distance, k_date, k_time) 
+      k_weighted_temp[row, 1] = sum(k_distance, k_date, k_time) * st[row,5]
     }
-    first = sum(row,column)
-    second = first * st[,5]
-    third = second/first
     
-    
-  }
-  return(k_sum)
+    temp[column] = colSums(k_weighted_temp) / colSums(k_column)
+  
+    }
+  
+  return(temp)
 }
 
-k = create_Kernel(longitud, latitud, date, times, filtered_st)
 
-plot(temp, type="o")
+temp = create_Kernel(longitud, latitud, date, times, filtered_st)
+
+plot(y = temp, x = time_points ,type="o", ylab = "Predicted temperatures",
+     xlab = "Time", xaxt = "n", ylim = c(0,10), col = "red")
+axis(1, at = c(4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24))
+
