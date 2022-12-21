@@ -14,7 +14,7 @@ train_data <- mydata[1:25,] # Training
 test_data <- mydata[26:500,] # Test
 # Random initialization of the weights in the interval [-1, 1]
 set.seed(1234567890)
-winit <- unlist(cbind(c(runif(10, -1, 1)), c(runif(10, -1, 1))))# WeightInit
+winit <- unlist(c(runif(31, -1, 1)))# WeightInit
   nn <- neuralnet(Sin ~ Variable,
                   data = train_data, 
                   hidden = c(10), #One hidden layer with 10 nodes
@@ -125,7 +125,7 @@ nn_var_from_sin <- neuralnet(Variable ~ Sin,
                 data = mydata, 
                 hidden = c(10),
                 startweights = winit,
-                threshold = 0.01) #train NN mod, X FROM SIN INSTEAD OF SIN FROM X
+                threshold = 0.02) #train NN mod, X FROM SIN INSTEAD OF SIN FROM X
 #plot the resulting prediction 
 plot(x = train_data[,2], y = train_data[,1],
      col = "black", ylim = c(0,10),
